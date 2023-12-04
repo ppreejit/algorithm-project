@@ -17,7 +17,8 @@ public class ResidualGraph {
 		this.vertices = new Hashtable<>();
 		this.edges = new Hashtable<>();
 
-		// Iterate through the vertices of the original graph and create residual vertices
+		// Iterate through the vertices of the original graph and create residual
+		// vertices
 		Iterator vertexIterator = graph.vertices();
 		while (vertexIterator.hasNext()) {
 			Vertex vertex = (Vertex) vertexIterator.next();
@@ -48,7 +49,8 @@ public class ResidualGraph {
 		this.vertices.put(vertex.getIdentifier(), vertex);
 	}
 
-	// Method to add a residual edge between given origin and destination vertices with a specified capacity
+	// Method to add a residual edge between given origin and destination vertices
+	// with a specified capacity
 	public void addEdge(ResidualVertex origin, ResidualVertex dest, double capacity) throws Exception {
 		ResidualEdge edge = new ResidualEdge(origin, dest, capacity);
 		origin.addEdge(edge);
@@ -76,5 +78,14 @@ public class ResidualGraph {
 			vertex.clearVisitedStatus();
 		}
 	}
-}
 
+	/**
+	 * Get the number of vertices in the graph.
+	 * 
+	 * @return Number of vertices in the graph.
+	 */
+	public int numberOfVertices() {
+		return this.vertices.size();
+	}
+
+}

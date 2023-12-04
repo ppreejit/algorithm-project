@@ -1,6 +1,5 @@
 package model;
 
-
 public class ResidualEdge {
 	private ResidualVertex source;
 	private ResidualVertex destination;
@@ -39,7 +38,8 @@ public class ResidualEdge {
 
 	private void handleForwardEdgeUpdate(double increment) throws Exception {
 		if (this.flow + increment > this.capacity) {
-			throw new Exception("Increment of " + increment + " on forward edge of capacity " + this.capacity + " and flow " + this.flow);
+			throw new Exception("Increment of " + increment + " on forward edge of capacity " + this.capacity
+					+ " and flow " + this.flow);
 		}
 
 		this.flow += increment;
@@ -96,5 +96,64 @@ public class ResidualEdge {
 	private void setCapacity(double capacity) {
 		this.capacity = capacity;
 	}
-}
 
+	/**
+	 * Increase flow on the edge by given amount. Also takes care of
+	 * adding/removing/updating corresponding backward edge if this is forward edge.
+	 * If this is backward edge, it also updates the flow on corresponding forward
+	 * edge, and removes this edge if necessary.
+	 * 
+	 * @param increment Amount by which to increment the flow on this edge
+	 * @throws Exception If given increment violates capacity constraints
+	 */
+	public void increaseFlow(double increment) throws Exception {
+		if (this.isBackwardEdge()) {
+			if (increment > capacity) {
+				throw new Exception("Increment of " + increment + " on backward edge of capacity " + this.capacity);
+			}
+
+			// Reduce the capacity of this edge, and reduce the flow in real forward edge
+			this.capacity = this.capacity - increment;
+			this.forwardEdge.flow -= increment;
+
+			// Adjust excess in origin of real edge, decreasing outgoing flow from origin,
+			// so excess increases in origin
+			this.forwardEdge.source.increaseExcess(increment);
+
+			// Adjust excess in dest of real edge, decreasing incoming flow into dest, so
+			// excess decreases in dest
+			this.forwardEdge.destination.increaseExcess(-increment);
+
+			if (this.capacity == 0) {
+				// no back edge for zero flow, remove edge from forward edge and vertex
+				this.forwardEdge.backwardEdge = null;
+				this.source.removeEdge(this);
+			}
+		} else {
+			if (this.flow + increment > this.capacity) {
+				throw new Exception("Increment of " + increment + " on forward edge of capacity " + this.capacity
+						+ " and flow " + this.flow);
+			}
+
+			this.flow += increment;
+
+			if (this.backwardEdge == null) {
+				// add backward edge if not already there
+				this.backwardEdge = new ResidualEdge(this.destination, this.source, this.flow);
+				this.backwardEdge.forwardEdge = this;
+				this.destination.addEdge(this.backwardEdge);
+			} else {
+				// backward edge already there, adjust it's capacity
+				this.backwardEdge.setCapacity(this.flow);
+			}
+
+			// Adjust excess in origin, increasing outgoing flow from origin, so excess
+			// decreases in origin
+			this.source.increaseExcess(-increment);
+
+			// Adjust excess in dest, increasing incoming flow into dest, so excess
+			// increases in dest
+			this.destination.increaseExcess(increment);
+		}
+	}
+}
