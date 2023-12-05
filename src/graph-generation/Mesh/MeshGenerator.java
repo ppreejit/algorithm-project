@@ -6,6 +6,8 @@ package Mesh;/*
  * November 21, 2008
  */
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Random;
 
@@ -50,15 +52,16 @@ public class MeshGenerator {
   private Random rand;
   /** True if the edge capacities are constant. */
   private boolean constCap;
+  StringBuilder stringBuilder = new StringBuilder();
 
   /**
    * The run method.
    */
-  public void generate() {
-
+  public String generate() {
     // the s to first column links
     for (int i = 1; i <= m; i++) {
-      out.printf("s (%d,1) %d\n", i, capacity());
+      String s1 = String.format("s (%s,1) %s\n", i, capacity());
+      stringBuilder.append(s1);
     }
 
     // left to right links across the rows
@@ -78,8 +81,10 @@ public class MeshGenerator {
 
     // last column to t links
     for (int i = 1; i <= m; i++) {
-      out.printf("(%d,%d) t %d\n", i, n, capacity());
+      String s2 = String.format("(%s,%s) t %s\n", i, n, capacity());
+      stringBuilder.append(s2);
     }
+    return stringBuilder.toString();
   }
 
   /**
@@ -100,7 +105,8 @@ public class MeshGenerator {
    *          the capacity entry
    */
   private void line(int i1, int j1, int i2, int j2, int cap) {
-    out.printf("(%d,%d) (%d,%d) %d\n", i1, j1, i2, j2, cap);
+    String s1 = String.format("(%s,%s) (%s,%s) %s\n", i1, j1, i2, j2, cap);
+    stringBuilder.append(s1);
   }
 
   /**
@@ -166,9 +172,17 @@ public class MeshGenerator {
    *          command line args
    */
   public static void main(String[] args) {
-
-    MeshGenerator mesh = new MeshGenerator(args);
-    mesh.generate();
+    try {
+      MeshGenerator mesh = new MeshGenerator(args);
+      // mesh.generate();
+      FileWriter myWriter = new FileWriter("filename.txt");
+      myWriter.write(mesh.generate());
+      myWriter.close();
+      System.out.println("Successfully wrote to the file.");
+    } catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+    }
   }
 
 }
