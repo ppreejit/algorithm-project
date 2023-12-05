@@ -87,5 +87,6 @@ public class ResidualGraph {
 	public int numberOfVertices() {
 		return this.vertices.size();
 	}
+	
 
 }

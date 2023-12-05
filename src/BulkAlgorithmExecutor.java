@@ -1,4 +1,5 @@
 import algorithms.FordFulkerson;
+import algorithms.PreFlowPush;
 import algorithms.ScalingFordFulkerson;
 import graph.GraphInput;
 import graph.SimpleGraph;
@@ -35,8 +36,6 @@ public class BulkAlgorithmExecutor {
         long ff_duration = ff_endTime - ff_startTime;
         System.out.println(" Max flow value is: " + ff_maxFlow + " computed in " + ff_duration + " ms");
 
-
-
         System.out.println("Executing Scaling Ford Fulkerson");
         ScalingFordFulkerson scalingFordFulkerson = new ScalingFordFulkerson();
         long sff_startTime = System.currentTimeMillis();
@@ -44,6 +43,14 @@ public class BulkAlgorithmExecutor {
         long sff_endTime = System.currentTimeMillis();
         long sff_duration = sff_endTime - sff_startTime;
         System.out.println(" Max flow value is: " + sff_maxFlow + " computed in " + sff_duration + " ms");
+        
+		System.out.println("Executing PreFlowPush");
+		PreFlowPush preFlowPush = new PreFlowPush();
+		long pfp_startTime = System.currentTimeMillis();
+		double pfp_maxFlow = preFlowPush.findMaxFlow(graph);
+		long pfp_endTime = System.currentTimeMillis();
+		long pfp_duration = pfp_endTime - pfp_startTime;
+		System.out.println(" Max flow value is: " + pfp_maxFlow + " computed in " + pfp_duration + " ms");
 
     }
     public static void main(String[] args) throws Exception {

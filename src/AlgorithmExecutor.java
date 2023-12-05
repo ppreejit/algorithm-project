@@ -27,6 +27,14 @@ public class AlgorithmExecutor {
 		long sff_endTime = System.currentTimeMillis();
 		long sff_duration = sff_endTime - sff_startTime;
 		System.out.println(" Max flow value is: " + sff_maxFlow + " computed in " + sff_duration + " ms");
+		
+		System.out.println("Executing PreFlowPush");
+		PreFlowPush preFlowPush = new PreFlowPush();
+		long pfp_startTime = System.currentTimeMillis();
+		double pfp_maxFlow = preFlowPush.findMaxFlow(graph);
+		long pfp_endTime = System.currentTimeMillis();
+		long pfp_duration = pfp_endTime - pfp_startTime;
+		System.out.println(" Max flow value is: " + pfp_maxFlow + " computed in " + pfp_duration + " ms");
 	}
 
 	public static void main(String[] args) throws Exception {

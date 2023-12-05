@@ -1,92 +1,163 @@
 package algorithms;
 
-import java.util.*;
-import java.io.*;
-import graph.*;
-import model.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+
+import model.ResidualEdge;
+import model.ResidualGraph;
+import model.ResidualVertex;
+import graph.SimpleGraph;
 
 /**
- * <h3>Pre Flow Push algorithm</h3> This class implements pre flow push
- * algorithm to find maximum flow in a graph.
- * 
+ * <h3>Pre Flow Push Algorithm</h3>
+ * This class implements the pre-flow push algorithm to find the maximum flow in a graph.
+ * The algorithm is used to calculate the maximum flow from a source to a sink in a flow network.
+ * It works by iteratively pushing flow along augmenting paths in the residual graph until no such paths exist.
+ *
  * @author Preethika Pradeep, Malavika Suresh
  * @version 1.0
  * @since 2017-12-01
  */
 public class PreFlowPush {
-	/**
-	 * Calculates max flow in given graph using pre flow push algorithm.
-	 * 
-	 * @param simpleGraph Graph in which to find max flow.
-	 * @return Value of max flow in the given graph.
-	 */
-	public double findMaxFlow(SimpleGraph simpleGraph) throws Exception {
-		ResidualGraph graph = new ResidualGraph(simpleGraph);
-		ResidualVertex source = graph.getSource();
-		ResidualVertex sink = graph.getSink();
 
-		LinkedList<ResidualVertex> positiveExcessVertices = new LinkedList<ResidualVertex>();
-		HashSet<String> verticesInQueue = new HashSet<String>();
+    /**
+     * Finds the maximum flow in the given graph using the pre-flow push algorithm.
+     *
+     * @param graph Flow network represented by a graph.
+     * @return Maximum flow in the given graph.
+     * @throws Exception If an error occurs during the flow calculation.
+     */
+    public double findMaxFlow(SimpleGraph graph) throws Exception {
+        // Convert the input graph to a residual graph
+        ResidualGraph residualGraph = new ResidualGraph(graph);
+        ResidualVertex source = residualGraph.getSource();
 
-		// Initial conditions
-		source.setHeight(graph.numberOfVertices());
-		for (ResidualEdge edge : source.getEdges()) {
-			edge.increaseFlow(edge.getResidualCapacity());
-			this.addVertexIfNotPresent(positiveExcessVertices, verticesInQueue, edge.getDestination());
-		}
+        // Data structures to track active vertices and visited vertices during the algorithm
+        LinkedList<ResidualVertex> activeVertices = new LinkedList<>();
+        HashSet<String> visitedVertices = new HashSet<>();
 
-		while (!positiveExcessVertices.isEmpty()) {
-			ResidualVertex vertex = this.remove(positiveExcessVertices, verticesInQueue);
-			ResidualEdge edge = vertex.getLessHeightNeighborEdge();
-			if (edge == null) {
-				// No neighbor with less height, relabel
-				vertex.incrementHeight();
+        // Initialize the source vertex and enqueue its neighbors
+        initializeSourceVertex(residualGraph, source, activeVertices, visitedVertices);
 
-				// Add vertex back
-				this.addVertexIfNotPresent(positiveExcessVertices, verticesInQueue, vertex);
-			} else {
-				double increment = Math.min(edge.getResidualCapacity(), vertex.getExcess());
-				edge.increaseFlow(increment);
+        // Main loop of the pre-flow push algorithm
+        while (!activeVertices.isEmpty()) {
+            // Get the next active vertex
+            ResidualVertex currentVertex = pollActiveVertex(activeVertices, visitedVertices);
 
-				// Add origin if there is still excess
-				if (edge.getSource().getExcess() > 0) {
-					this.addVertexIfNotPresent(positiveExcessVertices, verticesInQueue, edge.getSource());
-				}
+            // Find an edge with less height in the residual graph
+            ResidualEdge lessHeightNeighborEdge = currentVertex.getLessHeightNeighborEdge();
 
-				// Add dest if excess > 0
-				if (edge.getDestination().getExcess() > 0) {
-					this.addVertexIfNotPresent(positiveExcessVertices, verticesInQueue, edge.getDestination());
-				}
-			}
-		}
+            if (lessHeightNeighborEdge == null) {
+                // No neighbor with less height, relabel the current vertex
+                relabelVertex(currentVertex, activeVertices, visitedVertices);
+            } else {
+                // Push flow along the found augmenting path
+                double flowIncrement = Math.min(lessHeightNeighborEdge.getResidualCapacity(),
+                        currentVertex.getExcess());
+                pushFlow(lessHeightNeighborEdge, currentVertex, flowIncrement, activeVertices, visitedVertices);
+            }
+        }
 
-		return source.calculateTotalOutgoingFlow();
-	}
+        // Return the total outgoing capacity from the source vertex as the maximum flow
+        return source.calculateTotalOutgoingCapacity();
+    }
 
-	/**
-	 * Add vertex to the list containing vertices with positive excess if vertex is
-	 * not already present.
-	 * 
-	 * @param positiveExcessVertices List of vertices with positive excess
-	 * @param verticesInQueue        Names of vertices present in list containing
-	 *                               vertices with positive excess.
-	 * @param vertex                 Vertox to add in the list.
-	 */
-	private void addVertexIfNotPresent(LinkedList<ResidualVertex> positiveExcessVertices,
-			HashSet<String> verticesInQueue, ResidualVertex vertex) {
+    /**
+     * Initializes the source vertex by setting its height and pushing flow to its neighbors.
+     *
+     * @param graph           Residual graph representing the flow network.
+     * @param source          Source vertex of the flow network.
+     * @param activeVertices  List of active vertices in the algorithm.
+     * @param visitedVertices Set of vertices that have been visited during the algorithm.
+     */
+    private void initializeSourceVertex(ResidualGraph graph, ResidualVertex source,
+            LinkedList<ResidualVertex> activeVertices, HashSet<String> visitedVertices) {
+        // Set the height of the source vertex to the number of vertices in the graph
+        source.setHeight(graph.numberOfVertices());
 
-		if (vertex.isSourceOrSink()) {
-			return;
-		}
+        // Push flow to the neighbors of the source vertex and enqueue them if not visited
+        for (ResidualEdge edge : source.getEdges()) {
+            try {
+                edge.increaseFlow(edge.getResidualCapacity());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            enqueueActiveVertexIfNotVisited(edge.getDestination(), activeVertices, visitedVertices);
+        }
+    }
 
-		if (verticesInQueue.add(vertex.getIdentifier())) {
-			positiveExcessVertices.addLast(vertex);
-		}
-	}
+    /**
+     * Relabels the vertex by incrementing its height and enqueues it if not visited.
+     *
+     * @param vertex           Vertex to be relabeled.
+     * @param activeVertices  List of active vertices in the algorithm.
+     * @param visitedVertices Set of vertices that have been visited during the algorithm.
+     */
+    private void relabelVertex(ResidualVertex vertex, LinkedList<ResidualVertex> activeVertices,
+            HashSet<String> visitedVertices) {
+        // Increment the height of the vertex
+        vertex.incrementHeight();
+        // Enqueue the vertex if not visited
+        enqueueActiveVertexIfNotVisited(vertex, activeVertices, visitedVertices);
+    }
 
-	private ResidualVertex remove(LinkedList<ResidualVertex> positiveExcessVertices, HashSet<String> verticesInQueue) {
-		ResidualVertex vertex = positiveExcessVertices.remove();
-		verticesInQueue.remove(vertex.getIdentifier());
-		return vertex;
-	}
+    /**
+     * Pushes flow along the given edge and updates excess, enqueuing vertices if necessary.
+     *
+     * @param edge             Residual edge through which flow is pushed.
+     * @param vertex           Vertex from which flow is pushed.
+     * @param increment        Amount of flow to be pushed.
+     * @param activeVertices  List of active vertices in the algorithm.
+     * @param visitedVertices Set of vertices that have been visited during the algorithm.
+     */
+    private void pushFlow(ResidualEdge edge, ResidualVertex vertex, double increment,
+            LinkedList<ResidualVertex> activeVertices, HashSet<String> visitedVertices) {
+        try {
+            // Increase the flow along the edge by the specified increment
+            edge.increaseFlow(increment);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Enqueue the source vertex of the edge if there is still excess flow
+        if (edge.getSource().getExcess() > 0) {
+            enqueueActiveVertexIfNotVisited(edge.getSource(), activeVertices, visitedVertices);
+        }
+
+        // Enqueue the destination vertex of the edge if there is still excess flow
+        if (edge.getDestination().getExcess() > 0) {
+            enqueueActiveVertexIfNotVisited(edge.getDestination(), activeVertices, visitedVertices);
+        }
+    }
+
+    /**
+     * Enqueues the vertex if it is not visited and not a source or sink vertex.
+     *
+     * @param vertex           Vertex to be enqueued.
+     * @param activeVertices  List of active vertices in the algorithm.
+     * @param visitedVertices Set of vertices that have been visited during the algorithm.
+     */
+    private void enqueueActiveVertexIfNotVisited(ResidualVertex vertex,
+            LinkedList<ResidualVertex> activeVertices, HashSet<String> visitedVertices) {
+        // Enqueue the vertex if it is not a source or sink and not visited
+        if (!vertex.isSourceOrSink() && !visitedVertices.contains(vertex.getIdentifier())) {
+            visitedVertices.add(vertex.getIdentifier());
+            activeVertices.addLast(vertex);
+        }
+    }
+
+    /**
+     * Polls the next active vertex from the list of active vertices and marks it as visited.
+     *
+     * @param activeVertices  List of active vertices in the algorithm.
+     * @param visitedVertices Set of vertices that have been visited during the algorithm.
+     * @return The next active vertex.
+     */
+    private ResidualVertex pollActiveVertex(LinkedList<ResidualVertex> activeVertices,
+            HashSet<String> visitedVertices) {
+        // Poll the next active vertex and mark it as visited
+        ResidualVertex vertex = activeVertices.poll();
+        visitedVertices.add(vertex.getIdentifier());
+        return vertex;
+    }
 }
