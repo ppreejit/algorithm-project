@@ -15,7 +15,7 @@ import model.ResidualVertex;
  * source to a sink in a flow network. It works by iteratively pushing flow
  * along augmenting paths in the residual graph until no such paths exist.
  *
- * @author Preethika Pradeep
+ * @author Preethika Pradeep, Malavika Suresh
  * @version 1.0
  * @since 12-05-2023
  */
