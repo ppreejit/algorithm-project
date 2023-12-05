@@ -78,7 +78,9 @@ public class ResidualVertex {
 	// Method to get an array of edges connected to this vertex
 	public ResidualEdge[] getEdges() {
 		ResidualEdge[] edgeArray = new ResidualEdge[this.edges.size()];
-		this.edges.values().toArray(edgeArray);
+		if(this.edges.size() > 0){
+			this.edges.values().toArray(edgeArray);
+		}
 		return edgeArray;
 	}
 
