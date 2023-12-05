@@ -31,7 +31,7 @@ public class AlgorithmExecutor {
 		System.out.println("Executing PreFlowPush");
 		PreFlowPush preFlowPush = new PreFlowPush();
 		long pfp_startTime = System.currentTimeMillis();
-		double pfp_maxFlow = preFlowPush.findMaxFlow(graph);
+		double pfp_maxFlow = preFlowPush.calculateMaxFlow(graph);
 		long pfp_endTime = System.currentTimeMillis();
 		long pfp_duration = pfp_endTime - pfp_startTime;
 		System.out.println(" Max flow value is: " + pfp_maxFlow + " computed in " + pfp_duration + " ms");
