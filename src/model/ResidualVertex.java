@@ -152,4 +152,13 @@ public class ResidualVertex {
 	public boolean isSourceOrSink() {
 		return this.identifier.equals("s") || this.identifier.equals("t");
 	}
+	
+	/**
+	 * Whether the vertex is source.
+	 * 
+	 * @return True if vertex is either source, otherwise false.
+	 */
+	public boolean isSource() {
+		return this.identifier.equals("s");
+	}
 }
