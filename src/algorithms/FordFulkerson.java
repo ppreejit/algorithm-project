@@ -30,7 +30,7 @@ public class FordFulkerson {
 		// Iterate until a path from source to destination no longer exists
 		do {
 			path = GraphUtility.findPathToSink(residualGraph, source,false,0);
-			resetGraphVisitedStatus(residualGraph);
+			GraphUtility.resetGraphVisitedStatus(residualGraph);
 
 			if (path != null) {
 				// Calculate the bottleneck which is minimum capacity of the path
@@ -44,15 +44,4 @@ public class FordFulkerson {
 		// Return the outgoing flow from the source vertex
 		return source.calculateTotalOutgoingFlow();
 	}
-
-	/**
-	 * Resets the visited status of nodes or edges within the given residual graph.
-	 *
-	 * @param residualGraph The residual graph whose visited status needs to be reset
-	 */
-	private void resetGraphVisitedStatus(ResidualGraph residualGraph){
-		residualGraph.clearVisitedStatus();
-	}
-
-
 }

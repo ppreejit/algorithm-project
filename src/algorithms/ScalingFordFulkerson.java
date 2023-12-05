@@ -74,7 +74,7 @@ import model.*;
 			path = GraphUtility.findPathToSink(graph,graph.getSource(),true,minResidualCapacity);
 
 			// Clear visited status of the graph to prepare for the next path search
-			graph.clearVisitedStatus();
+			GraphUtility.resetGraphVisitedStatus(graph);
 
 			// If an augmenting path is found, update the flow along the path
 			if(path!=null){
