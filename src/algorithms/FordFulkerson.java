@@ -67,13 +67,6 @@ public class FordFulkerson {
 		return null;
 	}
 
-	// Create a linked list with a single edge (used for initializing a path)
-	private LinkedList<ResidualEdge> createPathList(ResidualEdge edge) {
-		LinkedList<ResidualEdge> path = new LinkedList<>();
-		path.add(edge);
-		return path;
-	}
-
 	// Increase the flow on each edge of the given path by the specified bottleneck value
 	private void updateFlowOnPath(LinkedList<ResidualEdge> path, double bottleneck) throws Exception {
 		for (ResidualEdge edge : path) {

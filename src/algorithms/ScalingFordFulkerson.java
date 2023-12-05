@@ -42,13 +42,13 @@ public class ScalingFordFulkerson{
 				break;
 			}
 
-			double bottleneck = getBottleneck(path);
+			double bottleneck = calculateBottleneck(path);
 			increaseFlowOnPath(path, bottleneck);
 		}
 	}
 
 	// Calculate the bottleneck (minimum capacity) of a given path
-	private double getBottleneck(LinkedList<ResidualEdge> path) {
+	private double calculateBottleneck(LinkedList<ResidualEdge> path) {
 		double bottleneck = Double.MAX_VALUE;
 		for (ResidualEdge edge : path) {
 			double residualCapacity = edge.getResidualCapacity();
@@ -67,16 +67,13 @@ public class ScalingFordFulkerson{
 
 		origin.markVisited();
 
-		// Traverse edges to find a path with the required minimum residual capacity
 		for (ResidualEdge edge : origin.getEdges()) {
 			double residualCapacity = edge.getResidualCapacity();
 			ResidualVertex destination = edge.getDestination();
 
 			if (residualCapacity >= minResidualCapacity) {
-				if (destination.getIdentifier().equals(graph.getSink().getIdentifier())) {
-					LinkedList<ResidualEdge> path = new LinkedList<>();
-					path.add(edge);
-					return path;
+				if (isDestinationSink(graph, destination)) {
+					return createPathWithSingleEdge(edge);
 				} else if (!destination.isVisited()) {
 					LinkedList<ResidualEdge> path = findAugmentingPathWithMinCapacity(graph, destination, minResidualCapacity);
 					if (path != null) {
@@ -86,8 +83,17 @@ public class ScalingFordFulkerson{
 				}
 			}
 		}
-
 		return null;
+	}
+
+	private boolean isDestinationSink(ResidualGraph graph, ResidualVertex destination) {
+		return destination.getIdentifier().equals(graph.getSink().getIdentifier());
+	}
+
+	private LinkedList<ResidualEdge> createPathWithSingleEdge(ResidualEdge edge) {
+		LinkedList<ResidualEdge> path = new LinkedList<>();
+		path.add(edge);
+		return path;
 	}
 
 	// Increase the flow on each edge of the given path by the specified bottleneck value
