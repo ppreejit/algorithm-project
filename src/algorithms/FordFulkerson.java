@@ -46,24 +46,24 @@ public class FordFulkerson {
 	private LinkedList<ResidualEdge> findPathToSink(ResidualGraph graph, ResidualVertex source) {
 		source.markVisited();
 
+		if (source.getIdentifier().equals(graph.getSink().getIdentifier())) {
+			LinkedList<ResidualEdge> path = new LinkedList<>();
+			return path; // Return an empty path since the source is the sink
+		}
+
 		for (ResidualEdge edge : source.getEdges()) {
 			double residualCapacity = edge.getResidualCapacity();
 			ResidualVertex destination = edge.getDestination();
 
-			if (residualCapacity > 0) {
-				// Check if the destination is the sink vertex, return the path if found
-				if (destination.getIdentifier().equals(graph.getSink().getIdentifier())) {
-					return createPathList(edge);
-				} else if (!destination.isVisited()) {
-					// Recursively explore paths to the sink vertex
-					LinkedList<ResidualEdge> path = findPathToSink(graph, destination);
-					if (path != null) {
-						path.addFirst(edge);
-						return path;
-					}
+			if (residualCapacity > 0 && !destination.isVisited()) {
+				LinkedList<ResidualEdge> path = findPathToSink(graph, destination);
+				if (path != null) {
+					path.addFirst(edge);
+					return path;
 				}
 			}
 		}
+
 		return null;
 	}
 
