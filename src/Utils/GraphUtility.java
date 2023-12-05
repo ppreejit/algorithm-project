@@ -128,4 +128,13 @@ public class GraphUtility {
             edge.updateFlow(bottleneck);
         }
     }
+
+    /**
+     * Resets the visited status of nodes or edges within the given residual graph.
+     *
+     * @param residualGraph The residual graph whose visited status needs to be reset
+     */
+    public static void resetGraphVisitedStatus(ResidualGraph residualGraph){
+        residualGraph.clearVisitedStatus();
+    }
 }
