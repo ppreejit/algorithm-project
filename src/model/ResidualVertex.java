@@ -134,7 +134,7 @@ public class ResidualVertex {
 	 * @return Edge if their is neghboring vertex with height less than this vertex,
 	 *         otherwise null.
 	 */
-	public ResidualEdge getLessHeightNeighborEdge() {
+	public ResidualEdge getLowerHeightNeighborEdge() {
 		for (ResidualEdge edge : this.edges.values()) {
 			if (edge.getResidualCapacity() > 0 && edge.getDestination().height < this.height) {
 				return edge;

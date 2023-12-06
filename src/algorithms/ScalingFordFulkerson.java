@@ -1,6 +1,3 @@
-/*
- * Scaling -- Ford Fulkerson
- */
 package algorithms;
 
 import java.util.*;
