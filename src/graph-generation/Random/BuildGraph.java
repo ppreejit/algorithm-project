@@ -101,7 +101,7 @@ public class BuildGraph {
  }
 
  public static void main (String args[]){
-        BuildGraph("varied_capacity_8.txt","/Users/malavikasuresh/Documents/Advance-Algo/project/algorithm-project/src/graph-generation/Random",150,3751,16000,12000);
+        BuildGraph("varied_density_12.txt","/Users/prudhvikishan/Niharika/Masters/Q1/Algorithms/input-graphs/random-graph-3",100,500,300,30);
  }
 
 
