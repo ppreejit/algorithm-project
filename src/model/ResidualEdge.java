@@ -8,12 +8,29 @@ public class ResidualEdge {
 	private ResidualEdge forwardEdge;
 	private ResidualEdge backwardEdge;
 
+	/**
+	 * Constructor to create a ResidualEdge between the given origin and destination
+	 * vertices with a specified capacity.
+	 *
+	 * @param origin   The ResidualVertex representing the source vertex of the
+	 *                 edge.
+	 * @param dest     The ResidualVertex representing the destination vertex of the
+	 *                 edge.
+	 * @param capacity The capacity of the edge.
+	 */
 	public ResidualEdge(ResidualVertex origin, ResidualVertex dest, double capacity) {
 		this.source = origin;
 		this.destination = dest;
 		this.capacity = capacity;
 	}
 
+	/**
+	 * Update the flow on the edge by the given increment. Handles both forward and
+	 * backward edge updates.
+	 *
+	 * @param increment The amount by which to update the flow on this edge.
+	 * @throws Exception If the given increment violates capacity constraints.
+	 */
 	public void updateFlow(double increment) throws Exception {
 		if (isBackwardEdge()) {
 			handleBackwardEdgeUpdate(increment);
@@ -22,6 +39,14 @@ public class ResidualEdge {
 		}
 	}
 
+	/**
+	 * Handle the update of a backward edge by reducing its capacity and adjusting
+	 * the flow on the corresponding forward edge. If the capacity of the backward
+	 * edge becomes zero, the backward edge is removed from the graph.
+	 *
+	 * @param increment The amount by which to update the flow on the backward edge.
+	 * @throws Exception If the given increment violates capacity constraints.
+	 */
 	private void handleBackwardEdgeUpdate(double increment) throws Exception {
 		if (increment > capacity) {
 			throw new Exception("Increment of " + increment + " on backward edge of capacity " + this.capacity);
@@ -36,6 +61,14 @@ public class ResidualEdge {
 		}
 	}
 
+	/**
+	 * Handle the update of a forward edge by increasing its flow. If the backward
+	 * edge does not exist, it is created. Otherwise, the capacity of the backward
+	 * edge is updated to match the flow on the forward edge.
+	 *
+	 * @param increment The amount by which to update the flow on the forward edge.
+	 * @throws Exception If the given increment violates capacity constraints.
+	 */
 	private void handleForwardEdgeUpdate(double increment) throws Exception {
 		if (this.flow + increment > this.capacity) {
 			throw new Exception("Increment of " + increment + " on forward edge of capacity " + this.capacity
@@ -51,12 +84,27 @@ public class ResidualEdge {
 		}
 	}
 
+	/**
+	 * Create a backward edge corresponding to the current forward edge. The
+	 * backward edge is created between the destination and source vertices with a
+	 * capacity equal to the current flow on the forward edge.
+	 *
+	 * @throws Exception If an error occurs during the creation of the backward
+	 *                   edge.
+	 */
 	private void createBackwardEdge() throws Exception {
 		this.backwardEdge = new ResidualEdge(this.destination, this.source, this.flow);
 		this.backwardEdge.forwardEdge = this;
 		this.destination.addEdge(this.backwardEdge);
 	}
 
+	/**
+	 * Update the flow on the edge by the given increment. Handles both forward and
+	 * backward edge updates.
+	 *
+	 * @param increment The amount by which to update the flow on this edge.
+	 * @throws Exception If the given increment violates capacity constraints.
+	 */
 	public String getIdentifier() {
 		String identifier = this.source.getIdentifier() + "-" + this.destination.getIdentifier();
 		if (isBackwardEdge()) {
@@ -65,22 +113,49 @@ public class ResidualEdge {
 		return identifier;
 	}
 
+	/**
+	 * Get the source vertex of the edge.
+	 *
+	 * @return The ResidualVertex representing the source vertex of the edge.
+	 */
 	public ResidualVertex getSource() {
 		return source;
 	}
 
+	/**
+	 * Get the destination vertex of the edge.
+	 *
+	 * @return The ResidualVertex representing the destination vertex of the edge.
+	 */
 	public ResidualVertex getDestination() {
 		return destination;
 	}
 
+	/**
+	 * Get the capacity of the edge.
+	 *
+	 * @return The capacity of the edge.
+	 */
 	public double getCapacity() {
 		return capacity;
 	}
 
+	/**
+	 * Get the current flow on the edge.
+	 *
+	 * @return The current flow on the edge.
+	 */
 	public double getFlow() {
 		return flow;
 	}
 
+	/**
+	 * Get the residual capacity of the edge. For backward edges, returns the
+	 * remaining capacity; for forward edges, returns the remaining capacity by
+	 * subtracting the current flow from the total capacity.
+	 *
+	 * @return The residual capacity of the edge.
+	 */
 	public double getResidualCapacity() {
 		if (this.isBackwardEdge()) {
 			return this.capacity;
@@ -89,10 +164,19 @@ public class ResidualEdge {
 		}
 	}
 
+	/**
+	 * Check if the edge is a backward edge.
+	 *
+	 * @return True if the edge is a backward edge; otherwise, false.
+	 */
 	public boolean isBackwardEdge() {
 		return this.forwardEdge != null;
 	}
 
+	/**
+	 * Sets the capacity of the edge.
+	 *
+	 */
 	private void setCapacity(double capacity) {
 		this.capacity = capacity;
 	}
