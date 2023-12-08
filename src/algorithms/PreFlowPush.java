@@ -22,7 +22,10 @@ import model.ResidualVertex;
 public class PreFlowPush {
 
 	// Data structures to track vertices with excess flow and visited vertices
+	// Using ArrayDeque for efficient adding/removing from both ends
 	Deque<ResidualVertex> verticesWithExcess = new ArrayDeque<>();
+
+	// Use HashSet for quick lookup time
 	HashSet<String> visitedVertices = new HashSet<>();
 
 	/**
@@ -36,10 +39,11 @@ public class PreFlowPush {
 	public double calculateMaxFlow(SimpleGraph graph) throws Exception {
 
 		// Convert the input graph to a residual graph
+		// Residual graph tracks available capacity
 		ResidualGraph residualGraph = new ResidualGraph(graph);
 		ResidualVertex sourceVertex = residualGraph.getSource();
 
-		// Initialize the flow and enqueue adjacent vertices of the source
+		// Initialize the flow and add adjacent vertices of the source
 		initializeMaxFlow(residualGraph, sourceVertex, verticesWithExcess, visitedVertices);
 
 		// Main loop of the Preflow Push algorithm
@@ -50,20 +54,23 @@ public class PreFlowPush {
 			ResidualEdge adjacentEdge = currentVertex.getLowerHeightNeighborEdge();
 
 			if (adjacentEdge == null) {
+				// No eligible edges, relabel vertex
 				relabelVertex(currentVertex, verticesWithExcess, visitedVertices);
 			} else {
+				// Push flow along edge
 				pushFlow(currentVertex, adjacentEdge);
-				enqueueExcessVertex(verticesWithExcess, visitedVertices, adjacentEdge.getSource());
-				enqueueExcessVertex(verticesWithExcess, visitedVertices, adjacentEdge.getDestination());
+				// Add updated vertices
+				addExcessVertex(verticesWithExcess, visitedVertices, adjacentEdge.getSource());
+				addExcessVertex(verticesWithExcess, visitedVertices, adjacentEdge.getDestination());
 			}
 		}
 
-		// Return the total outgoing capacity from the source vertex as the maximum flow
+		// Return the total outgoing flow from the source vertex as the maximum flow
 		return sourceVertex.calculateTotalOutgoingFlow();
 	}
 
 	/**
-	 * Initializes the flow and enqueues the adjacent vertices of the source.
+	 * Initializes the flow and adds the adjacent vertices of the source.
 	 *
 	 * @param residualGraph  Residual graph representing the flow network.
 	 * @param sourceVertex   Source vertex of the flow network.
@@ -73,11 +80,12 @@ public class PreFlowPush {
 	 */
 	private void initializeMaxFlow(ResidualGraph residualGraph, ResidualVertex sourceVertex,
 			Deque<ResidualVertex> excessVertices, HashSet<String> visitedSet) throws Exception {
+		// Initialize source height
 		sourceVertex.setHeight(residualGraph.numberOfVertices());
-
+		// Saturate all edges from source
 		for (ResidualEdge edge : sourceVertex.getEdges()) {
 			edge.increaseFlow(edge.getResidualCapacity());
-			enqueueExcessVertex(excessVertices, visitedSet, edge.getDestination());
+			addExcessVertex(excessVertices, visitedSet, edge.getDestination());
 		}
 	}
 
@@ -91,7 +99,7 @@ public class PreFlowPush {
 	private void relabelVertex(ResidualVertex vertex, Deque<ResidualVertex> excessVertices,
 			HashSet<String> visitedSet) {
 		vertex.incrementHeight();
-		enqueueUnvisitedVertex(excessVertices, visitedSet, vertex);
+		addUnvisitedVertex(excessVertices, visitedSet, vertex);
 	}
 
 	/**
@@ -107,13 +115,13 @@ public class PreFlowPush {
 	}
 
 	/**
-	 * Enqueues the vertex if it is not already visited.
+	 * Adds the vertex if it is not already visited.
 	 *
 	 * @param excessVertices List of vertices with excess flow.
 	 * @param visitedSet     Set of visited vertices during the algorithm.
 	 * @param vertex         Vertex to be enqueued.
 	 */
-	private void enqueueUnvisitedVertex(Deque<ResidualVertex> excessVertices, HashSet<String> visitedSet,
+	private void addUnvisitedVertex(Deque<ResidualVertex> excessVertices, HashSet<String> visitedSet,
 			ResidualVertex vertex) {
 		if (!vertex.isSourceOrSink() && visitedSet.add(vertex.getIdentifier())) {
 			excessVertices.addLast(vertex);
@@ -121,16 +129,16 @@ public class PreFlowPush {
 	}
 
 	/**
-	 * Enqueues the vertex if it has excess flow.
+	 * Adds the vertex if it has excess flow.
 	 *
 	 * @param excessVertices List of vertices with excess flow.
 	 * @param visitedSet     Set of visited vertices during the algorithm.
-	 * @param vertex         Vertex to be enqueued if it has excess flow.
+	 * @param vertex         Vertex to be added if it has excess flow.
 	 */
-	private void enqueueExcessVertex(Deque<ResidualVertex> excessVertices, HashSet<String> visitedSet,
+	private void addExcessVertex(Deque<ResidualVertex> excessVertices, HashSet<String> visitedSet,
 			ResidualVertex vertex) {
 		if (vertex.getExcess() > 0) {
-			enqueueUnvisitedVertex(excessVertices, visitedSet, vertex);
+			addUnvisitedVertex(excessVertices, visitedSet, vertex);
 		}
 	}
 }
