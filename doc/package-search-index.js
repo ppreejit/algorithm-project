@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"algorithms"},{"l":"All Packages","u":"allpackages-index.html"},{"l":"Bipartite"},{"l":"FixedDegree"},{"l":"graph"},{"l":"Mesh"},{"l":"model"},{"l":"Random"},{"l":"Utils"}];updateSearchResults();

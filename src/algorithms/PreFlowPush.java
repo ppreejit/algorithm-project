@@ -22,7 +22,10 @@ import model.ResidualVertex;
 public class PreFlowPush {
 
 	// Data structures to track vertices with excess flow and visited vertices
+	// Using ArrayDeque for efficient adding/removing from both ends
 	Deque<ResidualVertex> verticesWithExcess = new ArrayDeque<>();
+
+	// Use HashSet for quick lookup time
 	HashSet<String> visitedVertices = new HashSet<>();
 
 	/**
@@ -36,6 +39,7 @@ public class PreFlowPush {
 	public double calculateMaxFlow(SimpleGraph graph) throws Exception {
 
 		// Convert the input graph to a residual graph
+		// Residual graph tracks available capacity
 		ResidualGraph residualGraph = new ResidualGraph(graph);
 		ResidualVertex sourceVertex = residualGraph.getSource();
 
@@ -50,15 +54,18 @@ public class PreFlowPush {
 			ResidualEdge adjacentEdge = currentVertex.getLowerHeightNeighborEdge();
 
 			if (adjacentEdge == null) {
+				// No eligible edges, relabel vertex
 				relabelVertex(currentVertex, verticesWithExcess, visitedVertices);
 			} else {
+				// Push flow along edge
 				pushFlow(currentVertex, adjacentEdge);
+				// Enqueue updated vertices
 				enqueueExcessVertex(verticesWithExcess, visitedVertices, adjacentEdge.getSource());
 				enqueueExcessVertex(verticesWithExcess, visitedVertices, adjacentEdge.getDestination());
 			}
 		}
 
-		// Return the total outgoing capacity from the source vertex as the maximum flow
+		// Return the total outgoing flow from the source vertex as the maximum flow
 		return sourceVertex.calculateTotalOutgoingFlow();
 	}
 
@@ -73,8 +80,9 @@ public class PreFlowPush {
 	 */
 	private void initializeMaxFlow(ResidualGraph residualGraph, ResidualVertex sourceVertex,
 			Deque<ResidualVertex> excessVertices, HashSet<String> visitedSet) throws Exception {
+		// Initialize source height
 		sourceVertex.setHeight(residualGraph.numberOfVertices());
-
+		// Saturate all edges from source
 		for (ResidualEdge edge : sourceVertex.getEdges()) {
 			edge.increaseFlow(edge.getResidualCapacity());
 			enqueueExcessVertex(excessVertices, visitedSet, edge.getDestination());
