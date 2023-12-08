@@ -6,7 +6,18 @@ import graph.SimpleGraph;
 
 import java.io.File;
 
+/**
+ * This class is responsible for executing Ford-Fulkerson, Scaling-Ford-Fulkerson and Preflow-Push algorithms on multiple .txt files
+ * within a specified folder.
+ */
 public class BulkAlgorithmExecutor {
+    /**
+     * Recursively searches for .txt files within the specified folder and executes
+     * algorithms on each file found.
+     *
+     * @param folder The folder to search for .txt files.
+     * @throws Exception If there's an issue while executing the algorithms.
+     */
     private static void searchTxtFiles(File folder) throws Exception {
         File[] files = folder.listFiles();
         if (files != null) {
@@ -20,6 +31,12 @@ public class BulkAlgorithmExecutor {
         }
     }
 
+    /**
+     * Executes Ford-Fulkerson, Scaling-Ford-Fulkerson and Preflow-Push algorithms on the specified file path.
+     *
+     * @param filePath The path of the file containing the graph data.
+     * @throws Exception If there's an issue while executing the algorithms.
+     */
     private static void executeAlgorithm(String filePath) throws Exception {
         SimpleGraph graph = new SimpleGraph();
         GraphInput.LoadSimpleGraph(graph, filePath);

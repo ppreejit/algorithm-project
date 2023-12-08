@@ -3,8 +3,17 @@ import graph.*;
 
 import java.io.File;
 
+/**
+ * This class executes Ford-Fulkerson, Scaling-Ford-Fulkerson and Preflow-Push algorithms on a given graph file.
+ */
 public class AlgorithmExecutor {
 
+	/**
+	 * Executes Ford-Fulkerson, Scaling-Ford-Fulkerson and Preflow-Push algorithms on the specified file path.
+	 *
+	 * @param filePath The path of the file containing the graph data.
+	 * @throws Exception If there's an issue while executing the algorithms.
+	 */
 	private static void executeAlgorithm(String filePath) throws Exception {
 		SimpleGraph graph = new SimpleGraph();
 		GraphInput.LoadSimpleGraph(graph, filePath);
@@ -37,6 +46,12 @@ public class AlgorithmExecutor {
 		System.out.println(" Max flow value is: " + pfp_maxFlow + " computed in " + pfp_duration + " ms");
 	}
 
+	/**
+	 * Main method that executes the algorithms based on the input file path.
+	 *
+	 * @param args Command-line arguments. Expects the file path as the first argument.
+	 * @throws Exception If there's an issue while executing the algorithms.
+	 */
 	public static void main(String[] args) throws Exception {
 		String filePath = args[0];
 		if(null!= filePath){
